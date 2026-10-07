@@ -1,0 +1,310 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* ---------- Страница входа ---------- */
+
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+}
+
+.login-form {
+  width: 400px;
+  padding: 40px;
+}
+
+.login-title {
+  text-align: center;
+  font-size: 48px;
+  margin-bottom: 40px;
+  font-weight: normal;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.form-row label {
+  font-size: 18px;
+}
+
+.form-row input {
+  height: 32px;
+  border: 1px solid #333;
+  padding: 0 8px;
+  font-size: 16px;
+}
+
+.login-button {
+  display: block;
+  margin: 40px auto 0;
+  width: 180px;
+  height: 40px;
+  border: 1px solid #333;
+  background: #fff;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.login-button:hover {
+  background: #f0f0f0;
+}
+
+/* ---------- Страница СИЗ: общий каркас ---------- */
+
+.sied-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+}
+
+/* ---------- Вкладки ---------- */
+
+.tabs {
+  display: flex;
+  flex: none;           /* явно запрещаем растягиваться по вертикали */
+  width: 100%;
+  border-bottom: 1px solid #d9d9d9;
+}
+
+.tab {
+  flex: 1;
+  height: 48px;         /* фиксированная высота вкладки */
+  padding: 0 16px;
+  border: none;
+  border-right: 1px solid #d9d9d9;
+  background: #f5f5f5;
+  font-size: 14px;
+  color: #555;
+  cursor: pointer;
+}
+
+.tab:last-child {
+  border-right: none;
+}
+
+.tab-active {
+  background: #fff;
+  color: #1d4ed8;
+  font-weight: 600;
+}
+
+/* ---------- Контент вкладки ---------- */
+
+.sied-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+}
+
+.section-title {
+  text-align: center;
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0 0 20px;
+  color: #222;
+}
+
+/* ---------- Таблица ---------- */
+
+.table-wrapper {
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  overflow: hidden;
+  flex: 1;
+}
+
+.sied-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.sied-table th {
+  background: #e8ecf3;
+  text-align: center;
+  padding: 12px 16px;
+  font-weight: 600;
+  border-bottom: 1px solid #d9d9d9;
+  color: #333;
+}
+
+.sied-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #eee;
+  text-align: center;
+}
+
+.sied-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.sied-table tbody tr:hover {
+  background: #fafafa;
+}
+
+.empty-row {
+  text-align: center;
+  padding: 60px 0;
+  color: #999;
+  font-size: 16px;
+}
+
+.status-yes {
+  color: #1a7a1a;
+  font-weight: 600;
+}
+
+.status-no {
+  color: #c0392b;
+  font-weight: 600;
+}
+
+.status-pending {
+  color: #b58900;
+  font-weight: 600;
+}
+
+.status-approved {
+  color: #1a7a1a;
+  font-weight: 600;
+}
+
+.status-rejected {
+  color: #c0392b;
+  font-weight: 600;
+}
+
+.notification-date {
+  color: #c0392b;
+  font-weight: 600;
+}
+
+/* ---------- Кнопки действий ---------- */
+
+.sied-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 24px;
+}
+
+.sied-actions-center {
+  display: flex;
+  justify-content: center;
+  margin-top: 24px;
+}
+
+.btn {
+  display: inline-block;
+  min-width: 180px;
+  padding: 14px 24px;
+  font-size: 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  line-height: 1.2;
+}
+
+.btn-primary {
+  background: #1d4ed8;
+  border: 1px solid #1d4ed8;
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background: #1746b3;
+}
+
+.btn-outline {
+  background: #fff;
+  border: 1px solid #c9c9c9;
+  color: #333;
+}
+
+.btn-outline:hover {
+  background: #f5f5f5;
+}
+
+.sied-placeholder-page {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  color: #777;
+}
+/* ---------- Админка: поиск ---------- */
+
+.search-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.search-input {
+  flex: 1;
+  height: 40px;
+  border: 1px solid #c9c9c9;
+  border-radius: 4px;
+  padding: 0 12px;
+  font-size: 14px;
+}
+
+.btn-search {
+  min-width: 120px;
+  padding: 0 24px;
+}
+
+/* ---------- Админка: таблица со скроллом ---------- */
+
+.table-scroll {
+  max-height: 520px;
+  overflow-y: auto;
+}
+
+.table-scroll thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+/* ---------- Админка: три кнопки снизу ---------- */
+
+.sied-actions-three {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.sied-actions-three .btn {
+  flex: 1;
+}
+.overdue-days {
+  color: #c0392b;
+  font-weight: 700;
+}
+
+.btn-danger {
+  background: #c0392b;
+  border: 1px solid #c0392b;
+  color: #fff;
+}
+
+.btn-danger:hover {
+  background: #a93226;
+}
