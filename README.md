@@ -74,10 +74,8 @@ npm run dev
 
 Frontend будет доступен на `http://localhost:5173`
 
-### 3. Запуск из VS Code одной кнопкой
+База данных:
+<img width="1125" height="806" alt="изображение" src="https://github.com/user-attachments/assets/02ae3e0a-7015-4b85-8b7f-ecf8db9bc3ee" />
 
-- Открой проект в VS Code (`code .` в корне `fullstack-project`)
-- Нажми **F5** и выбери конфигурацию **"Fullstack: Backend + Frontend (Chrome)"** — запустится backend и откроется Chrome с фронтендом под отладчиком
-- Либо через палитру команд: `Run Task` → **"Fullstack: run all"**
 
 
