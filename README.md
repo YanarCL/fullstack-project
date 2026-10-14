@@ -1,4 +1,4 @@
-# Fullstack Demo: React + Python (FastAPI)
+# Система учета СИЗ сотрудников: React + Python (FastAPI)
 
 Стартовый проект для фулл-стек разработки:
 - **Backend**: Python + FastAPI (порт 8000)
