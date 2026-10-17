@@ -1,23 +1,26 @@
 import { useState } from "react";
 import TabsBar from "../../components/TabsBar";
+import AppHeader from "../../components/AppHeader";
+import { IconBell, IconBox, IconClipboard } from "../../components/Icons";
 import SizTab from "./SizTab";
 import RequestsTab from "./RequestsTab";
 import NotificationsTab from "./NotificationsTab";
 
 const TABS = ["СИЗ", "Запросы на СИЗ", "Уведомления"];
 
+const ICONS = {
+  "СИЗ": <IconBox size={18} />,
+  "Запросы на СИЗ": <IconClipboard size={18} />,
+  "Уведомления": <IconBell size={18} />,
+};
+
 function EmployeePage({ login, onLogout }) {
   const [activeTab, setActiveTab] = useState(TABS[0]);
 
   return (
     <div className="sied-page">
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 16px", borderBottom: "1px solid #d9d9d9" }}>
-        <span>Вы вошли как: <b>{login}</b></span>
-        <button className="btn btn-outline" style={{ minWidth: "auto", padding: "6px 16px" }} onClick={onLogout}>
-          Выйти
-        </button>
-      </div>
-      <TabsBar tabs={TABS} activeTab={activeTab} onChange={setActiveTab} />
+      <AppHeader name={login} roleLabel="Сотрудник" onLogout={onLogout} />
+      <TabsBar tabs={TABS} activeTab={activeTab} onChange={setActiveTab} icons={ICONS} />
 
       <div className="sied-content">
         {activeTab === "СИЗ" && <SizTab />}

@@ -3,6 +3,7 @@ backend/.venv/
 backend/__pycache__/
 backend/**/__pycache__/
 backend/.env
+.env
 *.pyc
 
 # Node / React
@@ -11,3 +12,11 @@ frontend/dist/
 
 # Прочее
 .DS_Store
+
+# dumps and logs
+dump.sql
+backup.sql
+logs.txt
+
+.idea/
+.vs/

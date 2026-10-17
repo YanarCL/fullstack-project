@@ -1,16 +1,19 @@
-function TabsBar({ tabs, activeTab, onChange }) {
+function TabsBar({ tabs, activeTab, onChange, icons = {} }) {
   return (
-    <div className="tabs">
+    <nav className="tabs" role="tablist">
       {tabs.map((tab) => (
         <button
           key={tab}
+          role="tab"
+          aria-selected={activeTab === tab}
           className={`tab ${activeTab === tab ? "tab-active" : ""}`}
           onClick={() => onChange(tab)}
         >
-          {tab}
+          {icons[tab] && <span className="tab-icon">{icons[tab]}</span>}
+          <span>{tab}</span>
         </button>
       ))}
-    </div>
+    </nav>
   );
 }
 

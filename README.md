@@ -1,53 +1,80 @@
-# Fullstack Demo: React + Python (FastAPI)
+# Fullstack система учета СИЗ для сотрудников: React + Python (FastAPI)
 
-Стартовый проект для фулл-стек разработки:
-- **Backend**: Python + FastAPI (порт 8000)
-- **Frontend**: React + Vite (порт 5173), JS-инструменты работают на Node.js
-- **VS Code**: готовые настройки запуска и отладки обеих частей сразу
 
-## Базовая Структура
+## Запуск в Docker
+
+Весь проект поднимается одной командой: `docker compose up --build`. 
+
+
+## Архитектура backend 
+
+```
+HTTP-запрос
+   │
+   ▼
+routers/       
+   │             
+   ▼
+services/       
+   │             
+   ▼
+repositories/   
+   │
+   ▼
+models.py → MySQL
+```
+
+
+## Структура проекта
 
 ```
 fullstack-project/
 ├── backend/
 │   ├── app/
-│   │   ├── routers/
-│   │   │   ├── auth.py            # POST /api/auth/login
-│   │   │   ├── employee.py        # эндпоинты для вкладок сотрудника
-│   │   │   └── admin.py           # эндпоинты для вкладок админа
-│   │   ├── database.py            # подключение к MySQL (SQLAlchemy)
-│   │   ├── models.py              # ORM-модели 
-│   │   ├── schemas.py             # Pydantic-схемы запросов/ответов
-│   │   └── auth.py                # проверка пароля
-│   ├── main.py                    # точка входа FastAPI
+│   │   ├── routers/                 
+│   │   │   ├── auth.py              
+│   │   │   ├── employee.py          
+│   │   │   ├── admin_catalog.py     
+│   │   │   ├── admin_inventory.py   
+│   │   │   ├── admin_requests.py    
+│   │   │   └── admin_control.py     
+│   │   ├── services/                
+│   │   ├── repositories/           
+│   │   ├── dto/                     
+│   │   ├── models.py                
+│   │   ├── mappers.py              
+│   │   ├── unit_of_work.py         
+│   │   ├── dependencies.py         
+│   │   ├── security.py             
+│   │   ├── set_password.py          
+│   │   ├── exceptions.py            
+│   │   ├── error_handlers.py        
+│   │   ├── cleanup.py               
+│   │   ├── init_db.py               
+│   │   └── database.py              
+│   ├── main.py                     
+│   ├── Dockerfile
 │   ├── requirements.txt
-│   ├── .env                       # настройки 
+│   ├── .env                         
 │   └── .env.example
 ├── frontend/
 │   ├── src/
 │   │   ├── pages/
 │   │   │   ├── LoginPage.jsx
-│   │   │   ├── admin/              # SizTab, RequestsTab, AddSizTab, ControlTab, AdminPage
-│   │   │   └── employee/           # SizTab, RequestsTab, NotificationsTab, EmployeePage
-│   │   ├── components/
-│   │   │   └── TabsBar.jsx
-│   │   ├── api.js                 
-│   │   ├── App.jsx                
-│   │   ├── main.jsx
-│   │   ├── App.css
-│   │   └── index.css
-│   ├── index.html
-│   ├── package.json
-│   └── vite.config.js             # api → backend:8000
-└── .vscode/
-    ├── settings.json
-    ├── launch.json                
-    ├── tasks.json
-    └── extensions.json
+│   │   │   ├── admin/               # SizTab, RequestsTab, AddSizTab, ControlTab, AdminPage
+│   │   │   └── employee/            # SizTab, RequestsTab, NotificationsTab, EmployeePage
+│   │   ├── components/              # TabsBar, AppHeader, Modal, Toast, ui, Icons
+│   │   ├── api.js, utils.js, App.jsx, main.jsx, App.css, index.css
+│   ├── index.html, package.json
+│   ├── Dockerfile, nginx.conf
+│   └── vite.config.js               # api -> backend:8000
+├── mobile/                          
+├── docker-compose.yml               
+├── .env.example                     
+├── DOCKER.md                        
+└── .vscode/                         
+
 ```
-
-
-
 
 ### 1. Backend (Python)
 
@@ -74,10 +101,6 @@ npm run dev
 
 Frontend будет доступен на `http://localhost:5173`
 
-### 3. Запуск из VS Code одной кнопкой
 
-- Открой проект в VS Code (`code .` в корне `fullstack-project`)
-- Нажми **F5** и выбери конфигурацию **"Fullstack: Backend + Frontend (Chrome)"** — запустится backend и откроется Chrome с фронтендом под отладчиком
-- Либо через палитру команд: `Run Task` → **"Fullstack: run all"**
 
 

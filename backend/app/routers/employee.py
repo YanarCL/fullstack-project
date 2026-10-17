@@ -1,137 +1,69 @@
-from datetime import datetime, date
+from fastapi import APIRouter, Depends
 
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
-
-from .. import models, schemas, auth
-from ..database import get_db
+from ..dependencies import (
+    get_current_employee,
+    get_inventory_service,
+    get_notification_service,
+    get_request_service,
+)
+from ..dto.auth import CurrentUser
+from ..dto.common import OkResponse
+from ..dto.inventory import EmployeeSizItem
+from ..dto.notifications import NotificationItem
+from ..dto.requests import CreateRequestBody, EmployeeRequestItem
+from ..services.inventory_service import InventoryService
+from ..services.notification_service import NotificationService
+from ..services.request_service import RequestService
 
 router = APIRouter(prefix="/api/employee", tags=["employee"])
 
 
-# ---------- СИЗ сотрудника ----------
-
-@router.get("/siz", response_model=list[schemas.EmployeeSizItem])
+@router.get("/siz", response_model=list[EmployeeSizItem])
 def get_my_siz(
-    db: Session = Depends(get_db),
-    me: models.Employee = Depends(auth.get_current_employee),
+    me: CurrentUser = Depends(get_current_employee),
+    service: InventoryService = Depends(get_inventory_service),
 ):
-    items = db.query(models.Inventory).filter(
-        models.Inventory.ID_employee == me.ID_Employee
-    ).all()
-
-    result = []
-    for item in items:
-        status_name = item.status.Status if item.status else None
-        result.append(schemas.EmployeeSizItem(
-            id=item.ID_inv,
-            name=item.equipment.Name if item.equipment else "—",
-            type=item.equipment.type.Name if item.equipment and item.equipment.type else None,
-            receivedAt=item.Issue_date,
-            dueAt=item.Due_date,
-            returned=(status_name == models.STATUS_RETURNED),
-        ))
-    return result
+    return service.list_mine(me.id)
 
 
-@router.post("/siz/{inv_id}/return")
+@router.post("/siz/{inv_id}/return", response_model=OkResponse)
 def return_siz(
     inv_id: int,
-    db: Session = Depends(get_db),
-    me: models.Employee = Depends(auth.get_current_employee),
+    me: CurrentUser = Depends(get_current_employee),
+    service: InventoryService = Depends(get_inventory_service),
 ):
-    """Сотрудник отмечает, что сдал конкретный экземпляр СИЗ."""
-    item = db.query(models.Inventory).filter(
-        models.Inventory.ID_inv == inv_id,
-        models.Inventory.ID_employee == me.ID_Employee,
-    ).first()
-    if item is None:
-        raise HTTPException(status_code=404, detail="СИЗ не найден")
+    service.mark_returned(inv_id, me.id)
+    return OkResponse()
 
-    returned_status = db.query(models.Status).filter(
-        models.Status.Status == models.STATUS_RETURNED
-    ).first()
-    if returned_status is None:
-        raise HTTPException(status_code=500, detail="В таблице status нет записи 'Сдано'")
-
-    item.ID_status = returned_status.ID_status
-    db.commit()
-    return {"ok": True}
-
-
-# ---------- запросы сотрудника ----------
-
-@router.get("/requests", response_model=list[schemas.EmployeeRequestItem])
+@router.get("/requests", response_model=list[EmployeeRequestItem])
 def get_my_requests(
-    db: Session = Depends(get_db),
-    me: models.Employee = Depends(auth.get_current_employee),
+    me: CurrentUser = Depends(get_current_employee),
+    service: RequestService = Depends(get_request_service),
 ):
-    reqs = db.query(models.Request).filter(
-        models.Request.ID_Employee == me.ID_Employee
-    ).order_by(models.Request.Request_date.desc()).all()
-
-    return [
-        schemas.EmployeeRequestItem(
-            id=r.ID_req,
-            date=r.Request_date,
-            status=models.REQUEST_STATUS_RU_TO_CODE.get(r.Status, r.Status),
-        )
-        for r in reqs
-    ]
+    return service.list_mine(me.id)
 
 
-@router.post("/requests", response_model=schemas.EmployeeRequestItem)
+@router.post("/requests", response_model=EmployeeRequestItem)
 def create_request(
-    body: schemas.CreateRequestBody,
-    db: Session = Depends(get_db),
-    me: models.Employee = Depends(auth.get_current_employee),
+    body: CreateRequestBody,
+    me: CurrentUser = Depends(get_current_employee),
+    service: RequestService = Depends(get_request_service),
 ):
-    new_request = models.Request(
-        ID_Employee=me.ID_Employee,
-        Request_date=datetime.now(),
-        Status="Ожидает",
-        Comment=body.comment,
-    )
-    db.add(new_request)
-    db.commit()
-    db.refresh(new_request)
-
-    return schemas.EmployeeRequestItem(
-        id=new_request.ID_req,
-        date=new_request.Request_date,
-        status="pending",
-    )
+    return service.create_mine(me.id, body.comment)
 
 
-# ---------- уведомления сотрудника ----------
-
-@router.get("/notifications", response_model=list[schemas.NotificationItem])
+@router.get("/notifications", response_model=list[NotificationItem])
 def get_my_notifications(
-    db: Session = Depends(get_db),
-    me: models.Employee = Depends(auth.get_current_employee),
+    me: CurrentUser = Depends(get_current_employee),
+    service: NotificationService = Depends(get_notification_service),
 ):
-    notes = db.query(models.Notification).filter(
-        models.Notification.ID_Employee == me.ID_Employee,
-        models.Notification.Is_cleared == False,  # noqa: E712
-    ).order_by(models.Notification.Date_sent.desc()).all()
-
-    return [
-        schemas.NotificationItem(
-            id=n.ID_notification,
-            date=n.Date_sent,
-            name=n.inventory.equipment.Name if n.inventory and n.inventory.equipment else "—",
-        )
-        for n in notes
-    ]
+    return service.list_mine(me.id)
 
 
-@router.post("/notifications/clear")
+@router.post("/notifications/clear", response_model=OkResponse)
 def clear_my_notifications(
-    db: Session = Depends(get_db),
-    me: models.Employee = Depends(auth.get_current_employee),
+    me: CurrentUser = Depends(get_current_employee),
+    service: NotificationService = Depends(get_notification_service),
 ):
-    db.query(models.Notification).filter(
-        models.Notification.ID_Employee == me.ID_Employee,
-    ).update({"Is_cleared": True})
-    db.commit()
-    return {"ok": True}
+    service.clear_mine(me.id)
+    return OkResponse()

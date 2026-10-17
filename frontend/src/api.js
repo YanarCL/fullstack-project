@@ -1,5 +1,5 @@
 const TOKEN_KEY = "siz_token";
-const USER_KEY = "siz_user"; // { employee_id, role, name }
+const USER_KEY = "siz_user";
 
 export function saveSession(token, user) {
   localStorage.setItem(TOKEN_KEY, token);
@@ -22,11 +22,6 @@ export function getSession() {
   }
 }
 
-/**
- * Обёртка над fetch: добавляет базовый путь /api, заголовок Authorization
- * (если есть токен) и парсит JSON. Бросает Error с текстом из detail backend-а
- * при неуспешном ответе.
- */
 export async function apiFetch(path, options = {}) {
   const session = getSession();
   const headers = {
@@ -39,7 +34,7 @@ export async function apiFetch(path, options = {}) {
 
   const res = await fetch(`/api${path}`, { ...options, headers });
 
-  if (res.status === 401) {
+  if (res.status === 401 && path !== "/auth/login") {
     clearSession();
     window.location.reload();
     throw new Error("Сессия истекла, войдите снова");
@@ -50,9 +45,7 @@ export async function apiFetch(path, options = {}) {
     try {
       const data = await res.json();
       if (data?.detail) detail = data.detail;
-    } catch {
-      // ignore
-    }
+    } catch {}
     throw new Error(detail);
   }
 

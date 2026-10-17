@@ -3,6 +3,7 @@ import LoginPage from "./pages/LoginPage";
 import EmployeePage from "./pages/employee/EmployeePage";
 import AdminPage from "./pages/admin/AdminPage";
 import { getSession, saveSession, clearSession, apiFetch } from "./api";
+import { ToastProvider } from "./components/Toast";
 import "./App.css";
 
 function App() {
@@ -33,15 +34,16 @@ function App() {
     setSession(null);
   }
 
+  let screen;
   if (!session) {
-    return <LoginPage onLogin={handleLogin} error={loginError} />;
+    screen = <LoginPage onLogin={handleLogin} error={loginError} />;
+  } else if (session.user.role === "admin") {
+    screen = <AdminPage login={session.user.name} onLogout={handleLogout} />;
+  } else {
+    screen = <EmployeePage login={session.user.name} onLogout={handleLogout} />;
   }
 
-  if (session.user.role === "admin") {
-    return <AdminPage login={session.user.name} onLogout={handleLogout} />;
-  }
-
-  return <EmployeePage login={session.user.name} onLogout={handleLogout} />;
+  return <ToastProvider>{screen}</ToastProvider>;
 }
 
 export default App;

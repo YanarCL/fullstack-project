@@ -1,5 +1,10 @@
 import { useEffect, useState } from "react";
 import { apiFetch } from "../../api";
+import Modal from "../../components/Modal";
+import { useToast } from "../../components/Toast";
+import { Alert, Badge, Chip, EmptyRow, PageHead, SkeletonRows } from "../../components/ui";
+import { IconBox } from "../../components/Icons";
+import { formatDate, isOverdue } from "../../utils";
 
 const COLUMNS = [
   "ID СИЗ",
@@ -11,16 +16,18 @@ const COLUMNS = [
 ];
 
 function SizTab() {
+  const toast = useToast();
   const [items, setItems] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [toReturn, setToReturn] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [modalError, setModalError] = useState(null);
 
   async function load() {
-    setLoading(true);
     setError(null);
     try {
-      const data = await apiFetch("/employee/siz");
-      setItems(data);
+      setItems(await apiFetch("/employee/siz"));
     } catch (err) {
       setError(err.message);
     } finally {
@@ -32,71 +39,91 @@ function SizTab() {
     load();
   }, []);
 
-  async function handleReturn(id) {
-    if (!window.confirm("Отметить этот СИЗ как сданный?")) return;
+  async function confirmReturn() {
+    setSubmitting(true);
+    setModalError(null);
     try {
-      await apiFetch(`/employee/siz/${id}/return`, { method: "POST" });
-      load();
+      await apiFetch(`/employee/siz/${toReturn.id}/return`, { method: "POST" });
+      const name = toReturn.name;
+      setToReturn(null);
+      await load();
+      toast.success(`«${name}» отмечено как сданное`);
     } catch (err) {
-      alert(err.message);
+      setModalError(err.message);
+    } finally {
+      setSubmitting(false);
     }
   }
 
+  const onHands = items.filter((i) => !i.returned).length;
+  const late = items.filter((i) => isOverdue(i.dueAt, i.returned)).length;
+
   return (
     <>
-      {error && <p style={{ color: "#c0392b" }}>{error}</p>}
+      <PageHead title="Мои СИЗ" subtitle="Средства защиты, выданные вам, и сроки их сдачи." />
 
-      <div className="table-wrapper">
-        <table className="sied-table">
-          <thead>
-            <tr>
-              {COLUMNS.map((col) => (
-                <th key={col}>{col}</th>
-              ))}
-              <th>Действие</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
+      {error && <Alert tone="error">{error}</Alert>}
+
+      <div className="table-card">
+        <div className="table-meta">
+          <Chip>Всего выдано: {items.length}</Chip>
+          <Chip tone="info">На руках: {onHands}</Chip>
+          {late > 0 && <Chip tone="danger">Просрочено: {late}</Chip>}
+        </div>
+        <div className="table-wrapper table-scroll">
+          <table className="sied-table">
+            <thead>
               <tr>
-                <td colSpan={COLUMNS.length + 1} className="empty-row">
-                  Загрузка...
-                </td>
+                {COLUMNS.map((col) => (
+                  <th key={col}>{col}</th>
+                ))}
+                <th>Действие</th>
               </tr>
-            ) : items.length === 0 ? (
-              <tr>
-                <td colSpan={COLUMNS.length + 1} className="empty-row">
-                  Нет данных
-                </td>
-              </tr>
-            ) : (
-              items.map((item) => (
-                <tr key={item.id}>
-                  <td>{item.id}</td>
-                  <td>{item.name}</td>
-                  <td>{item.type}</td>
-                  <td>{item.receivedAt}</td>
-                  <td>{item.dueAt}</td>
-                  <td className={item.returned ? "status-yes" : "status-no"}>
-                    {item.returned ? "Да" : "Нет"}
-                  </td>
-                  <td>
-                    {!item.returned && (
-                      <button
-                        className="btn btn-outline"
-                        style={{ minWidth: "auto", padding: "6px 12px" }}
-                        onClick={() => handleReturn(item.id)}
-                      >
-                        Сдать
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {loading ? (
+                <SkeletonRows cols={COLUMNS.length + 1} />
+              ) : items.length === 0 ? (
+                <EmptyRow colSpan={COLUMNS.length + 1} title="Вам пока ничего не выдано" />
+              ) : (
+                items.map((item) => (
+                  <tr key={item.id}>
+                    <td className="cell-id">{item.id}</td>
+                    <td className="cell-strong">{item.name}</td>
+                    <td>{item.type || "—"}</td>
+                    <td>{formatDate(item.receivedAt)}</td>
+                    <td className={isOverdue(item.dueAt, item.returned) ? "cell-late" : ""}>{formatDate(item.dueAt)}</td>
+                    <td>
+                      <Badge tone={item.returned ? "success" : "danger"}>{item.returned ? "Да" : "Нет"}</Badge>
+                    </td>
+                    <td>
+                      {!item.returned && (
+                        <button className="btn btn-outline btn-sm" onClick={() => { setModalError(null); setToReturn(item); }}>
+                          Сдать
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
+
+      {toReturn && (
+        <Modal
+          size="sm"
+          icon={<IconBox size={22} />}
+          title="Отметить СИЗ как сданный?"
+          subtitle={`«${toReturn.name}» (№${toReturn.id})`}
+          submitLabel="Подтвердить"
+          submitting={submitting}
+          error={modalError}
+          onClose={() => setToReturn(null)}
+          onSubmit={confirmReturn}
+        />
+      )}
     </>
   );
 }

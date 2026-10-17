@@ -1,7 +1,3 @@
-"""
-ORM-модели — один в один повторяют ER-диаграмму (workshop, employee,
-notifications, inventory, status, requests, requests_items, equipment, type).
-"""
 from sqlalchemy import (
     Column, Integer, String, Text, Date, DateTime, ForeignKey, Enum, Boolean
 )
@@ -11,8 +7,6 @@ from .database import Base
 ROLE_VALUES = ("admin", "employee")
 REQUEST_STATUS_VALUES = ("Ожидает", "Одобрено", "Отклонено")
 
-# Фронтенд (status-pending/approved/rejected в CSS и STATUS_LABELS) ждёт
-# английские коды, а в БД статус хранится по-русски — сопоставляем их здесь.
 REQUEST_STATUS_RU_TO_CODE = {
     "Ожидает": "pending",
     "Одобрено": "approved",
@@ -59,20 +53,18 @@ class EquipmentType(Base):
 
 
 class Equipment(Base):
-    """Каталог видов СИЗ (справочник)."""
     __tablename__ = "equipment"
 
     ID_catalog = Column(Integer, primary_key=True, autoincrement=True)
     Name = Column(String(150), nullable=False)
     ID_type = Column(Integer, ForeignKey("type.ID_type"), nullable=True)
-    Service_life = Column(Integer, nullable=True)  # срок эксплуатации, недель
+    Service_life = Column(Integer, nullable=True)  
 
     type = relationship("EquipmentType", back_populates="equipment")
     inventory_items = relationship("Inventory", back_populates="equipment")
 
 
 class Status(Base):
-    """Статус конкретного экземпляра СИЗ (напр. 'Выдано' / 'Сдано')."""
     __tablename__ = "status"
 
     ID_status = Column(Integer, primary_key=True, autoincrement=True)
@@ -82,7 +74,6 @@ class Status(Base):
 
 
 class Inventory(Base):
-    """Конкретный экземпляр СИЗ, выданный (или выдаваемый) сотруднику."""
     __tablename__ = "inventory"
 
     ID_inv = Column(Integer, primary_key=True, autoincrement=True)
@@ -113,7 +104,6 @@ class Request(Base):
 
 
 class RequestItem(Base):
-    # имя таблицы и PK сохранены как в исходной ER-диаграмме (requests_items / ID_req_itmes)
     __tablename__ = "requests_items"
 
     ID_req_itmes = Column(Integer, primary_key=True, autoincrement=True)
