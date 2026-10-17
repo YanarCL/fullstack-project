@@ -1,4 +1,4 @@
-# Fullstack система учета СИЗ для сотрудников: React + Python (FastAPI)
+# Система учета СИЗ сотрудников: React + Python (FastAPI)
 
 
 ## Запуск в Docker
@@ -71,8 +71,7 @@ fullstack-project/
 ├── mobile/                          
 ├── docker-compose.yml               
 ├── .env.example                     
-├── DOCKER.md                        
-└── .vscode/                         
+└── DOCKER.md                                                 
 
 ```
 
@@ -101,6 +100,8 @@ npm run dev
 
 Frontend будет доступен на `http://localhost:5173`
 
+База данных:
+<img width="1125" height="806" alt="изображение" src="https://github.com/user-attachments/assets/02ae3e0a-7015-4b85-8b7f-ecf8db9bc3ee" />
 
 
 
